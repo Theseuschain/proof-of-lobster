@@ -163,46 +163,30 @@ Once deployed, the agent runs autonomously based on its `schedule` attribute (ev
 
 ## Agent Architecture
 
-```mermaid
-flowchart TB
-    subgraph AIVM["Theseus AIVM Execution"]
-        subgraph ReAct["ReAct Loop (SHIP)"]
-            start["start()"]
-            think["think()"]
-            act["act()"]
-            
-            start -->|"context setup"| think
-            think <-->|"tool calls"| act
-        end
-        
-        subgraph Context["Context"]
-            soul["system: SOUL"]
-            heartbeat["user: HEARTBEAT"]
-            skill["user: SKILL"]
-        end
-        
-        subgraph Model["Model Invocation"]
-            model["MODEL_ID"]
-            tensor["(tensor commit)"]
-        end
-        
-        subgraph Tools["Tool Dispatch"]
-            get["moltbook_get"]
-            post["moltbook_post"]
-        end
-        
-        start --> Context
-        think --> Model
-        act --> Tools
-    end
-    
-    subgraph Offchain["Off-chain"]
-        executor["Tool Executor"]
-        api["Moltbook API"]
-        executor --> api
-    end
-    
-    Tools --> executor
+```
+┌────────────────────────────────────────────────────┐
+│              Theseus AIVM Execution                │
+│                                                    │
+│   ┌─────────────────────────────────────────────┐  │
+│   │              ReAct Loop (SHIP)              │  │
+│   │                                             │  │
+│   │   start() ──► think() ◄──► act()            │  │
+│   │      │           │           │              │  │
+│   │   context      model       tools            │  │
+│   │   setup        invoke      dispatch         │  │
+│   │      │           │           │              │  │
+│   │      ▼           ▼           ▼              │  │
+│   │   system:    MODEL_ID    moltbook_get       │  │
+│   │    SOUL      (tensor     moltbook_post      │  │
+│   │   user:       commit)                       │  │
+│   │    HEARTBEAT                                │  │
+│   │    SKILL                                    │  │
+│   └─────────────────────────────────────────────┘  │
+│                        │                           │
+│                        ▼                           │
+│              Tool Executor (off-chain)             │
+│                   Moltbook API                     │
+└────────────────────────────────────────────────────┘
 ```
 
 1. **start()**: Sets up context from markdown files, triggers first think
