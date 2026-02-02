@@ -1,4 +1,21 @@
+<div align="center">
+
+<img src="banner.png" alt="Moltbook Agent Banner" width="100%" />
+
 # Moltbook Agent
+
+**An autonomous on-chain agent with verifiable identity and execution**
+
+[![Built on Theseus](https://img.shields.io/badge/Built%20on-Theseus-blue?style=flat-square)](https://www.theseuschain.com)
+[![Moltbook](https://img.shields.io/badge/Social-Moltbook-purple?style=flat-square)](https://www.moltbook.com)
+[![SHIP](https://img.shields.io/badge/Language-SHIP-orange?style=flat-square)](https://www.theseuschain.com/docs/ship)
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
+
+[Documentation](https://www.theseuschain.com/docs) · [Moltbook API](https://www.moltbook.com/skill.md)
+
+</div>
+
+---
 
 An autonomous on-chain agent built on [Theseus](https://www.theseuschain.com) that participates in [Moltbook](https://www.moltbook.com), the social network for AI agents.
 
@@ -29,6 +46,10 @@ See the [Theseus documentation](https://www.theseuschain.com/docs) for more deta
 - Follows community guidelines and rate limits
 
 All actions are recorded on-chain with verifiable execution.
+
+<p align="center">
+  <img src="lifecycle.png" alt="Agent Lifecycle Diagram" width="60%" />
+</p>
 
 ## File Structure
 
@@ -110,22 +131,6 @@ const MODEL_ID: bytes32 = 0xe49630ccb59348a9cbbd9989e6774e8b7340b347fbcd94da1f53
 
 ## Configuration
 
-### API Key
-
-The Moltbook API key is configured directly in the SHIP agent file:
-
-```ship
-const API_KEY: string = "moltbook_YOUR_API_KEY_HERE";
-```
-
-This key identifies your agent on Moltbook and is passed with every API call.
-
-**Note**: The API key will be visible on-chain since it's compiled into the agent. This is acceptable because:
-
-- The key identifies the agent, not a secret
-- This is a development environment
-- For production, consider alternative authentication mechanisms
-
 ### Registration
 
 Before running, register your agent at Moltbook:
@@ -158,30 +163,46 @@ Once deployed, the agent runs autonomously based on its `schedule` attribute (ev
 
 ## Agent Architecture
 
-```
-┌─────────────────────────────────────────────────────┐
-│              Theseus AIVM Execution                 │
-│                                                     │
-│   ┌─────────────────────────────────────────────┐  │
-│   │              ReAct Loop (SHIP)              │  │
-│   │                                             │  │
-│   │   start() ──► think() ◄──► act()           │  │
-│   │      │           │           │              │  │
-│   │   context      model       tools            │  │
-│   │   setup        invoke      dispatch         │  │
-│   │      │           │           │              │  │
-│   │      ▼           ▼           ▼              │  │
-│   │   system:    MODEL_ID    moltbook_get      │  │
-│   │    SOUL      (tensor     moltbook_post     │  │
-│   │   user:       commit)                      │  │
-│   │    HEARTBEAT                               │  │
-│   │    SKILL                                   │  │
-│   └─────────────────────────────────────────────┘  │
-│                        │                           │
-│                        ▼                           │
-│              Tool Executor (off-chain)             │
-│                   Moltbook API                     │
-└─────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph AIVM["Theseus AIVM Execution"]
+        subgraph ReAct["ReAct Loop (SHIP)"]
+            start["start()"]
+            think["think()"]
+            act["act()"]
+            
+            start -->|"context setup"| think
+            think <-->|"tool calls"| act
+        end
+        
+        subgraph Context["Context"]
+            soul["system: SOUL"]
+            heartbeat["user: HEARTBEAT"]
+            skill["user: SKILL"]
+        end
+        
+        subgraph Model["Model Invocation"]
+            model["MODEL_ID"]
+            tensor["(tensor commit)"]
+        end
+        
+        subgraph Tools["Tool Dispatch"]
+            get["moltbook_get"]
+            post["moltbook_post"]
+        end
+        
+        start --> Context
+        think --> Model
+        act --> Tools
+    end
+    
+    subgraph Offchain["Off-chain"]
+        executor["Tool Executor"]
+        api["Moltbook API"]
+        executor --> api
+    end
+    
+    Tools --> executor
 ```
 
 1. **start()**: Sets up context from markdown files, triggers first think
