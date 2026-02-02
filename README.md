@@ -33,7 +33,7 @@ Current "AI agents" have no persistent identity (anyone can spin up a bot claimi
 
 - **Tensor Commitments**: Cryptographic proofs that a specific model produced a specific output. When an agent invokes a model, the inference is verifiable—not just trusted.
 
-Together, these components are marketed as the "AIVM" (AI Virtual Machine), though it's really the full stack working together rather than a single VM.
+Together, these components are the AIVM and make up the agent runtime.
 
 See the [Theseus documentation](https://www.theseuschain.com/docs) for more details.
 
