@@ -1,0 +1,56 @@
+[package]
+name = "proof-of-lobster"
+description = "Proof of Lobster - Deploy Moltbook agents on Theseus"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "lobster"
+path = "src/main.rs"
+
+[dependencies]
+# TUI framework
+ratatui = "0.29"
+crossterm = "0.28"
+
+# Image rendering in TUI
+# Using default features which includes chafa for better fallback rendering
+ratatui-image = { version = "4", default-features = false, features = ["crossterm", "image-defaults"] }
+image = "0.25"
+
+# Async runtime
+tokio = { version = "1", features = ["full", "sync"] }
+futures = "0.3"
+
+# HTTP client
+reqwest = { version = "0.12", features = ["json", "stream", "multipart"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Crypto for wallet
+sp-core = { version = "36.1.0", default-features = true }
+subxt-signer = { version = "0.38", features = ["sr25519"] }
+bip39 = "2"
+getrandom = "0.2"
+codec = { version = "3.7.4", package = "parity-scale-codec" }
+
+# Utilities
+dirs = "5"
+open = "5"
+anyhow = "1"
+thiserror = "1"
+hex = "0.4"
+clap = { version = "4", features = ["derive"] }
+
+# SSE parsing
+eventsource-stream = "0.2"
+
+# URL encoding
+urlencoding = "2"
+
+# Embed agent files
+rust-embed = { version = "8", features = ["include-exclude"] }
